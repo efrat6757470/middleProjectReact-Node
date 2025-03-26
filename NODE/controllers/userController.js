@@ -8,13 +8,12 @@ const addUser = async (req, res) => {
     if (existUser)
         return res.status(400).send("user exists")
     const user = await User.create({fullname,username,email,phone,address})
+    //getAllUsers()
     res.json(user)
 }
 
 const getAllUsers = async (req, res) => {
-    const users = await User.find().lean()
-    if (!users?.length)
-        return res.status(400).send("No users exists")
+    const users = await User.find().sort({_id:1}).lean()
     res.json(users)
 }
 
@@ -32,14 +31,18 @@ const getUserById = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    const { fullname, id, address, email, phone } = req.body
+   
+    const { fullname, id, address, email, phone,username } = req.body
     if (!id)
         return res.status(400).send("Id is required")
+    
     const user = await User.findById(id).exec()
     if (!user)
         return res.status(400).send("user is not exists")
     if (fullname)
         user.fullname = fullname
+    if (username)
+        user.username = username
     if (phone)
         user.phone = phone
     if (address)
@@ -47,6 +50,8 @@ const updateUser = async (req, res) => {
     if (email)
         user.email = email
     const upuser=await user.save()
+    //getAllUsers()
+
     res.json(upuser)
 }
 
@@ -58,6 +63,8 @@ const deleteUser = async (req, res) => {
     if (!user)
         return res.status(400).send("user is not exists")
     const result = await user.deleteOne()
+    //getAllUsers()
+
     res.send(result)
 }
 module.exports = { getUserById, getAllUsers, addUser, deleteUser, updateUser }

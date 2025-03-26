@@ -1,9 +1,7 @@
 const Todos = require("../models/Todos")
 
 const getAllTodus = async (req, res) => {
-    const todos = await Todos.find().lean()
-    if (!todos?.length)
-        return res.status(400).send("There are no todos!!!")
+    const todos = await Todos.find().sort({_id:1}).lean()
     res.json(todos)
 }
 
@@ -25,6 +23,7 @@ const addTodo = async (req, res) => {
     if (!title)
         return res.status(400).send("Missing required field")
     const todo = await Todos.create({ title, tags, completed })
+    //getAllTodus();
     res.json(todo)
 }
 
@@ -36,23 +35,30 @@ const deleteTodoById = async (req, res) => {
     if (!todo)
         return res.status(400).send("This todo isn't exists")
     const deletedtodo = await todo.deleteOne()
+    //getAllTodus();
+
     res.json(deletedtodo)
 }
 
 const updateTodoById = async (req, res) => {
-    const { id, title, tags, completed } = req.body
-    if (id == null)
+    const { _id, title, tags, completed } = req.body
+    console.log(_id, title, tags, completed);
+    if (_id == null)
         return res.status(400).send("Id is required")
-    const todo = await Todos.findById(id).exec()
+    const todo = await Todos.findById(_id).exec()
     if (!todo)
         return res.status(400).send("This todo isn't exists")
-    if (completed)
-        todo.completed = completed
+
+    todo.completed = completed
+
+
     if (title)
         todo.title = title
     if (tags)
         todo.tags = tags
-    const updatetodo=await todo.save()
+    const updatetodo = await todo.save()
+    //getAllTodus();
+
     res.json(updatetodo)
 }
 module.exports = { getAllTodus, getTodosById, updateTodoById, deleteTodoById, addTodo }
